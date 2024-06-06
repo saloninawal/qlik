@@ -1,0 +1,37 @@
+LOAD
+    "Passenger ID",
+    "First Name",
+    "Last Name",
+    Gender,
+    "Age",
+    Nationality,
+    "Airport Name",
+    "Airport Country Code",
+    "Country Name",
+    "Airport Continent",
+    Continents,
+    "Departure Date",
+    "Arrival Airport",
+    "Pilot Name",
+    "Flight Status"
+FROM [lib://salon/Airline_Dataset.csv]
+(txt, utf8, embedded labels, delimiter is ',', msq);   
+
+// Removing the Null Values 
+
+[Airline_Dataset_Preprocessed]:
+NoConcatenate Load *,
+    if(Age <= 1, 'Baby',
+    if(Age <= 3, 'Toddler',
+    if(Age <= 9, 'Child',
+    if(Age <= 19, 'Teenager',
+    if(Age <= 39, 'Young Adult',
+    if(Age <= 54, 'Middle-aged',
+    if(Age <= 79, 'Senior',
+    'Elderly'
+    ))))))) as AgeGroup,
+    Date#([Departure Date], 'MM/DD/YYYY') as [Departure_Date],
+    Year([Departure Date]) As Year,
+    Month([Departure Date]) as Month
+Resident [Airline_Dataset]
+Where Not ([Arrival Airport] = '0' OR [Arrival Airport] = '-');
